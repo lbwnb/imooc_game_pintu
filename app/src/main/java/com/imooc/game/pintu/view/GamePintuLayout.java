@@ -5,17 +5,23 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.example.qiux.imooc_game_pintu.R;
 import com.imooc.game.utils.ImagePiece;
+import com.imooc.game.utils.ImageSplitterUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class GamePintuLayout extends RelativeLayout {
+public class GamePintuLayout extends RelativeLayout implements View.OnClickListener {
 
-    private int mColum = 3;
+    private int mColumn = 3;
     /**
      * 容器的内边距
      */
@@ -83,13 +89,64 @@ public class GamePintuLayout extends RelativeLayout {
     }
 
     /**
+     * 设置ImageView(Item)的宽度等属性
+     */
+    private void initItem() {
+        mItemWidth = (mWidth = mPadding*2-mMargin*(mColumn-1))/mColumn;
+        mGamePintuItems = new ImageView[mColumn*mColumn];
+        //生成我们的Item，设置Rule
+        for (int i=0;i<mGamePintuItems.length;i++){
+            ImageView item = new ImageView(getContext());
+            item.setOnClickListener(this);
+            item.setImageBitmap(mItemBitmaps.get(i).getBitmap());
+
+            mGamePintuItems[i]=item;
+            item.setId(i+1);
+
+            //在Item中的tag中存储index
+            item.setTag(i+"_"+mItemBitmaps.get(i).getIndex());
+
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(mItemWidth,mItemWidth);
+
+            //设置Item间横向间隙，通过rightMargin
+            // 不是最后一列，
+            if ((i+1)%mColumn!=0 ){
+                lp.rightMargin = mMargin;
+            }
+            //不是第一列
+            if (i%mColumn!=0){
+                lp.addRule(RelativeLayout.RIGHT_OF,mGamePintuItems[i-1].getId());
+            }
+
+            //如果不是第一行,设置topMargin和rule
+            if ((i+1)>mColumn){
+                lp.topMargin = mMargin;
+                        lp.addRule(RelativeLayout.BELOW,mGamePintuItems[i-mColumn].getId());
+            }
+            addView(item,lp);
+        }
+
+    }
+
+    /**
      *
      */
     private void initBitmap() {
 
         if (mBitmap == null){
-            mBitmap = BitmapFactory.decodeResource(getResources(),R.drawable)
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image);
         }
+
+        mItemBitmaps = ImageSplitterUtil.splitImage(mBitmap,mColumn);
+
+        //使用sort完成我们的乱序
+        Collections.sort(mItemBitmaps, new Comparator<ImagePiece>() {
+            @Override
+            public int compare(ImagePiece a, ImagePiece b) {
+
+            return Math.random() > 0.5 ? 1:-1;
+            }
+        });
     }
 
     /**
@@ -106,4 +163,8 @@ for (int param:params){
     }
 
 
+    @Override
+    public void onClick(View view) {
+
+    }
 }
