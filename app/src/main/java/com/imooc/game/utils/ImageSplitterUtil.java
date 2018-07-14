@@ -20,7 +20,7 @@ public class ImageSplitterUtil {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
-        int pieceWidth = Math.max(width,height)/piece;
+        int pieceWidth = Math.min(width,height)/piece;
 
         for (int i=0;i<piece;i++){
             for (int j = 0;j<piece;j++){

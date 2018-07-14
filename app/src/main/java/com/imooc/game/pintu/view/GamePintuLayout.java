@@ -3,6 +3,7 @@ package com.imooc.game.pintu.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -162,9 +163,49 @@ for (int param:params){
         return min;
     }
 
+    private ImageView mFirst;
+    private ImageView mSecond;
 
     @Override
-    public void onClick(View view) {
+    public void onClick(View v) {
+        //两次点击同一
+        if (mFirst == v){
+            mFirst.setColorFilter(null);
+            mFirst = null;
+            return;
+        }
+
+        if (mFirst == null) {
+            mFirst = (ImageView) v;
+            mFirst.setColorFilter(Color.parseColor("#55FF0000"));
+
+        }else{
+            mSecond = (ImageView) v;
+
+            exchangeView();
+            
+        }
+    }
+
+    /**
+     * 交换我们的item
+     */
+    private void exchangeView() {
+        mFirst.setColorFilter(null);
+
+       String firstTag = (String) mFirst.getTag();
+       String secondTag = (String) mSecond.getTag();
+
+      String[] firstParams = firstTag.split("_");
+      String [] secondParams = secondTag.split("_");
+
+      Bitmap firstBitmap = mItemBitmaps.get(Integer.parseInt(firstParams[0])).getBitmap();
+      mSecond.setImageBitmap(firstBitmap);
+        Bitmap secondBitmap = mItemBitmaps.get(Integer.parseInt(secondParams[0])).getBitmap();
+        mFirst.setImageBitmap(secondBitmap);
+
+        mFirst = mSecond = null;
+
 
     }
 }
